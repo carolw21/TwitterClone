@@ -39,6 +39,9 @@ public class TimelineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.ic_launcher_twitter_round);
+
         // on some click or some loading we need to wait for...
         pb = findViewById(R.id.pbLoading);
         pb.setVisibility(ProgressBar.VISIBLE);

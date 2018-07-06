@@ -27,7 +27,7 @@
         android:textColor="@color/black"
         android:textStyle="bold" />
 
-    <TextView
+    <com.codepath.apps.restclienttemplate.LinkifiedTextView
         android:id="@+id/tvBody"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,6 +35,8 @@
         android:layout_marginLeft="10dp"
         android:layout_toEndOf="@+id/ivProfileImage"
         android:text="TextView"
+        android:autoLink="all"
+        android:linksClickable="true"
         android:textColor="@color/black" />
 
     <TextView
@@ -52,9 +54,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="10dp"
-        android:layout_toEndOf="@+id/tvUserName"
         android:text="TextView"
+        android:layout_alignParentRight="true"
         android:textColor="@color/grey" />
 
     <Button
