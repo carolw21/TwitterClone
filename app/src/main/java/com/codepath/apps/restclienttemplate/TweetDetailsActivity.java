@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -14,12 +15,17 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.codepath.apps.restclienttemplate.models.Tweet;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.parceler.Parcels;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+
+import cz.msebera.android.httpclient.Header;
 
 public class TweetDetailsActivity extends AppCompatActivity {
 
@@ -28,12 +34,13 @@ public class TweetDetailsActivity extends AppCompatActivity {
     public TextView tvBody;
     public TextView tvUserName;
     public TextView tvTimestamp;
+    public ImageView ivMedia;
     public Button replyBtn;
     public Button retweetBtn;
     public Button likeBtn;
     public Tweet tweet;
-    public Boolean liked = false;
-    public Boolean retweeted = false;
+    public Boolean liked;
+    public Boolean retweeted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,16 +57,29 @@ public class TweetDetailsActivity extends AppCompatActivity {
         replyBtn = findViewById(R.id.replyBtn);
         retweetBtn = findViewById(R.id.retweetBtn);
         likeBtn = findViewById(R.id.likeBtn);
+        ivMedia = findViewById(R.id.ivMedia);
 
         tvName.setText(tweet.user.name);
         tvBody.setText(tweet.body);
         tvUserName.setText('@' + tweet.user.screenName);
         tvTimestamp.setText(getRelativeTimeAgo(tweet.createdAt));
 
+        liked = tweet.liked;
+        retweeted = tweet.retweeted;
+
+        final TwitterClient client = TwitterApp.getRestClient(this);
+
         Glide.with(this)
                 .load(tweet.user.profileImageUrl)
                 .apply(new RequestOptions().transforms(new CenterCrop(), new RoundedCorners(80)))
                 .into(ivProfileImage);
+
+        if (!tweet.media.equals("none")) {
+            Glide.with(this)
+                    .load(tweet.media)
+                    .apply(new RequestOptions().transforms(new CenterCrop(), new RoundedCorners(20)))
+                    .into(ivMedia);
+        }
 
         replyBtn.setOnClickListener(new View.OnClickListener() {
 
@@ -71,18 +91,62 @@ public class TweetDetailsActivity extends AppCompatActivity {
             }
         });
 
+        if (tweet.liked) {
+            likeBtn.setBackgroundResource(R.drawable.ic_vector_heart);
+            likeBtn.setBackgroundTintList(likeBtn.getContext().getResources().getColorStateList(R.color.inline_action_like_pressed));
+        }
+        else {
+            likeBtn.setBackgroundResource(R.drawable.ic_vector_heart_stroke);
+            likeBtn.setBackgroundTintList(likeBtn.getContext().getResources().getColorStateList(R.color.grey));
+        }
+
+        if (tweet.retweeted) {
+            retweetBtn.setBackgroundResource(R.drawable.ic_vector_retweet);
+            retweetBtn.setBackgroundTintList(retweetBtn.getContext().getResources().getColorStateList(R.color.inline_action_retweet));
+        }
+        else {
+            retweetBtn.setBackgroundResource(R.drawable.ic_vector_retweet_stroke);
+            retweetBtn.setBackgroundTintList(retweetBtn.getContext().getResources().getColorStateList(R.color.grey));
+        }
+
         likeBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 liked = !liked;
+
                 if (liked) {
                     v.setBackgroundResource(R.drawable.ic_vector_heart);
                     v.setBackgroundTintList(v.getContext().getResources().getColorStateList(R.color.inline_action_like_pressed));
+                    client.likeTweet(tweet.uid, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Log.i("TwitterApp","Success");
+                            TimelineActivity.fetchTimelineAsync(0);
+                        }
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                            super.onFailure(statusCode, headers, throwable, errorResponse);
+                            Log.e("TwitterApp", errorResponse.toString());
+                        }
+                    });
                 }
                 else {
                     v.setBackgroundResource(R.drawable.ic_vector_heart_stroke);
                     v.setBackgroundTintList(v.getContext().getResources().getColorStateList(R.color.grey));
+                    client.unlikeTweet(tweet.uid, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Log.i("TwitterApp","Success");
+                            TimelineActivity.fetchTimelineAsync(0);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                            super.onFailure(statusCode, headers, throwable, errorResponse);
+                            Log.e("TwitterApp", errorResponse.toString());
+                        }
+                    });
                 }
             }
         });
@@ -95,10 +159,36 @@ public class TweetDetailsActivity extends AppCompatActivity {
                 if (retweeted) {
                     v.setBackgroundResource(R.drawable.ic_vector_retweet);
                     v.setBackgroundTintList(v.getContext().getResources().getColorStateList(R.color.inline_action_retweet));
+                    client.retweet(tweet.uid, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Log.i("TwitterApp","Success");
+                            TimelineActivity.fetchTimelineAsync(0);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                            super.onFailure(statusCode, headers, throwable, errorResponse);
+                            Log.e("TwitterApp", errorResponse.toString());
+                        }
+                    });
                 }
                 else {
                     v.setBackgroundResource(R.drawable.ic_vector_retweet_stroke);
                     v.setBackgroundTintList(v.getContext().getResources().getColorStateList(R.color.grey));
+                    client.unretweet(tweet.uid, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Log.i("TwitterApp","Success");
+                            TimelineActivity.fetchTimelineAsync(0);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                            super.onFailure(statusCode, headers, throwable, errorResponse);
+                            Log.e("TwitterApp", errorResponse.toString());
+                        }
+                    });
                 }
             }
         });

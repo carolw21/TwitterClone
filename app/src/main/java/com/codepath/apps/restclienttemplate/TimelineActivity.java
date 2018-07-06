@@ -26,13 +26,13 @@ import cz.msebera.android.httpclient.Header;
 
 public class TimelineActivity extends AppCompatActivity {
 
-    TwitterClient client;
-    TweetAdapter tweetAdapter;
+    static TwitterClient client;
+    static TweetAdapter tweetAdapter;
     ArrayList<Tweet> tweets;
     RecyclerView rvTweets;
     ProgressBar pb;
     final int REQUEST_CODE = 20;
-    private SwipeRefreshLayout swipeContainer;
+    private static SwipeRefreshLayout swipeContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +92,7 @@ public class TimelineActivity extends AppCompatActivity {
         startActivityForResult(i, REQUEST_CODE);
     }
 
-    public void fetchTimelineAsync(int page) {
+    public static void fetchTimelineAsync(int page) {
         // Send the network request to fetch the updated data
         // `client` here is an instance of Android Async HTTP
         // getHomeTimeline is an example endpoint.

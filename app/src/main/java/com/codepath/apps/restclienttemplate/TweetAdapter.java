@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,24 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
                 .load(tweet.user.profileImageUrl)
                 .apply(new RequestOptions().transforms(new CenterCrop(), new RoundedCorners(80)))
                 .into(holder.ivProfileImage);
+
+        if (tweet.liked) {
+            holder.likeBtn.setBackgroundResource(R.drawable.ic_vector_heart);
+            holder.likeBtn.setBackgroundTintList(holder.likeBtn.getContext().getResources().getColorStateList(R.color.inline_action_like_pressed));
+        }
+        else {
+            holder.likeBtn.setBackgroundResource(R.drawable.ic_vector_heart_stroke);
+            holder.likeBtn.setBackgroundTintList(holder.likeBtn.getContext().getResources().getColorStateList(R.color.grey));
+        }
+
+        if (tweet.retweeted) {
+            holder.retweetBtn.setBackgroundResource(R.drawable.ic_vector_retweet);
+            holder.retweetBtn.setBackgroundTintList(holder.retweetBtn.getContext().getResources().getColorStateList(R.color.inline_action_retweet));
+        }
+        else {
+            holder.retweetBtn.setBackgroundResource(R.drawable.ic_vector_retweet_stroke);
+            holder.retweetBtn.setBackgroundTintList(holder.retweetBtn.getContext().getResources().getColorStateList(R.color.grey));
+        }
     }
 
     @Override
@@ -110,8 +129,6 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         public Button replyBtn;
         public Button retweetBtn;
         public Button likeBtn;
-        public Boolean liked = false;
-        public Boolean retweeted = false;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -134,38 +151,6 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
                     Intent i = new Intent(v.getContext(), ComposeActivity.class);
                     i.putExtra("premessage", tvUserName.getText());
                     v.getContext().startActivity(i);
-                }
-            });
-
-            likeBtn.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    liked = !liked;
-                    if (liked) {
-                        v.setBackgroundResource(R.drawable.ic_vector_heart);
-                        v.setBackgroundTintList(v.getContext().getResources().getColorStateList(R.color.inline_action_like_pressed));
-                    }
-                    else {
-                        v.setBackgroundResource(R.drawable.ic_vector_heart_stroke);
-                        v.setBackgroundTintList(v.getContext().getResources().getColorStateList(R.color.grey));
-                    }
-                }
-            });
-
-            retweetBtn.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    retweeted = !retweeted;
-                    if (retweeted) {
-                        v.setBackgroundResource(R.drawable.ic_vector_retweet);
-                        v.setBackgroundTintList(v.getContext().getResources().getColorStateList(R.color.inline_action_retweet));
-                    }
-                    else {
-                        v.setBackgroundResource(R.drawable.ic_vector_retweet_stroke);
-                        v.setBackgroundTintList(v.getContext().getResources().getColorStateList(R.color.grey));
-                    }
                 }
             });
 

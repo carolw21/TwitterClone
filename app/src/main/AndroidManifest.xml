@@ -10,12 +10,12 @@
     <application
         android:name=".TwitterApp"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_launcher_twitter_round"
         android:label=""
         android:theme="@style/AppTheme">
         <activity
             android:name=".LoginActivity"
-            android:label=""
+            android:label="SimpleTweets"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

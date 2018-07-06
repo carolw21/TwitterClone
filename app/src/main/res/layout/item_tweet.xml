@@ -93,4 +93,5 @@
         android:background="@drawable/ic_vector_heart_stroke"
         android:backgroundTint="@color/grey"
         android:scaleType="fitXY" />
+
 </RelativeLayout>
