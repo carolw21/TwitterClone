@@ -47,7 +47,7 @@ The following **bonus** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://recordit.co/NHLvuHMtmC' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://g.recordit.co/NHLvuHMtmC.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [RecordIt](http://recordit.co/).
 
